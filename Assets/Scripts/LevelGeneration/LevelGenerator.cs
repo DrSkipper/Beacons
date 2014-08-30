@@ -11,6 +11,11 @@ public class LevelGenerator : VoBehavior
 	const int MAP_SIZE_X = 50;
 	const int MAP_SIZE_Y = 50;
 
+	public float initialConversionRate = 0.65f;
+	public int stepIterations = 20;
+	public int deathLimit = 7;
+	public int birthLimit = 4;
+
 	public LevelGenMap map;
 
 	// Use this for initialization
@@ -19,9 +24,10 @@ public class LevelGenerator : VoBehavior
 		this.map = new LevelGenMap(MAP_SIZE_X, MAP_SIZE_Y);
 		
 		//map.printMap();
-		map.randomlyConvertTiles(LevelGenMap.TILE_TYPE_DEFAULT, LevelGenerator.TILE_TYPE_RED, 0.65f);
+		map.randomlyConvertTiles(LevelGenMap.TILE_TYPE_DEFAULT, LevelGenerator.TILE_TYPE_RED, this.initialConversionRate);
 		//map.printMap();
-		map.runAutomataStep(LevelGenMap.TILE_TYPE_DEFAULT, LevelGenerator.TILE_TYPE_RED, 7, 4, true, false);
+		for (int i = 0; i < this.stepIterations; ++i)
+			map.runAutomataStep(LevelGenMap.TILE_TYPE_DEFAULT, LevelGenerator.TILE_TYPE_RED, this.deathLimit, this.birthLimit, true, false);
 		//map.printMap();
 	}
 	
