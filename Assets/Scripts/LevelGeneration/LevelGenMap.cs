@@ -3,49 +3,39 @@ using System.Collections;
 
 //NOTE - fcole - Cellular Automata level generation code heavily inspired by this link:
 // http://gamedev.tutsplus.com/tutorials/implementation/cave-levels-cellular-automata/
-public class LevelGenMap : VoBehavior {
-
-	const uint TILE_TYPE_DEFAULT = 0x000000;
-	const uint TILE_TYPE_RED 	 = 0x000001;
-	const uint TILE_TYPE_BLUE 	 = 0x000002;
-	const uint TILE_TYPE_YELLOW  = 0x000003;
-	const uint TILE_TYPE_GREEN 	 = 0x000004;
-	const uint TILE_TYPE_INVALID = 0xFFFFFF;
-
-	const int MAP_SIZE_X = 50;
-	const int MAP_SIZE_Y = 50;
+public class LevelGenMap
+{
+	public const uint TILE_TYPE_DEFAULT = 0x000001;
+	public const uint TILE_TYPE_INVALID = 0xFFFFFF;
 
 	public uint[,] map;
 
-	// Use this for initialization
-	void Start()
-	{
-	}
-	
-	// Update is called once per frame
-	void Update()
-	{
-	}
+	private int _sizeX;
+	private int _sizeY;
 
-	void generateMap()
+	public LevelGenMap(int sizeX, int sizeY, uint defaultType = TILE_TYPE_DEFAULT)
 	{
-		this.map = new uint[MAP_SIZE_X, MAP_SIZE_Y];
+		this.map = new uint[sizeX, sizeX];
+		_sizeX = sizeX;
+		_sizeY = sizeY;
 
-
+		for (int x = 0; x < _sizeX; ++x)
+		for (int y = 0; y < _sizeY; ++y)
+			map[x, y] = defaultType;
 	}
 
-	uint tileTypeAtLocation(int x, int y, bool allowWrapping = false)
+	public uint tileTypeAtLocation(int x, int y, bool allowWrapping = false)
 	{
-		if (x >= 0 && x < MAP_SIZE_X && 
-		    y >= 0 && y < MAP_SIZE_Y)
+		if (x >= 0 && x < _sizeX && 
+		    y >= 0 && y < _sizeY)
 			return map[x, y];
 
 		if (allowWrapping)
 		{
-			if 		(x < 0) 		  x += MAP_SIZE_X;
-			else if (x >= MAP_SIZE_X) x -= MAP_SIZE_X;
-			if 		(y < 0) 		  y += MAP_SIZE_Y;
-			else if (y >= MAP_SIZE_Y) y -= MAP_SIZE_Y;
+			if 		(x < 0) 	  x += _sizeX;
+			else if (x >= _sizeX) x -= _sizeX;
+			if 		(y < 0) 	  y += _sizeY;
+			else if (y >= _sizeY) y -= _sizeY;
 
 			return this.tileTypeAtLocation(x, y, false);
 		}
@@ -55,11 +45,11 @@ public class LevelGenMap : VoBehavior {
 
 	//TODO - fcole - Change from chance to have guaranteed percentage of tiles to convert, maybe with leeway parameter.
 	//   Will probably require changing to array of tile objects, getting lists of them and shuffling the lists.
-	void randomlyConvertTiles(uint validBaseTypesMask, uint typeToConvertTo, float chance)
+	public void randomlyConvertTiles(uint validBaseTypesMask, uint typeToConvertTo, float chance)
 	{
-		for (int x = 0; x < MAP_SIZE_X; ++x)
+		for (int x = 0; x < _sizeX; ++x)
 		{
-			for (int y = 0; y < MAP_SIZE_Y; ++y)
+			for (int y = 0; y < _sizeY; ++y)
 			{
 				// If the type at this location matches a valid type, run a die roll to convert it
 				if ((map[x, y] | validBaseTypesMask) == validBaseTypesMask && Random.value <= chance)
@@ -68,38 +58,57 @@ public class LevelGenMap : VoBehavior {
 		}
 	}
 
-	void runAutomataStep(uint baseType, uint checkType, int limitForTileDeath, int limitForTileBirth)
+	public void runAutomataStep(uint baseType, uint checkType, int limitForTileDeath, int limitForTileBirth, bool allowWrapping = true, bool countInvalids = false)
 	{
-		uint[,] newMap = new uint[MAP_SIZE_X, MAP_SIZE_Y];
+		uint[,] newMap = new uint[_sizeX, _sizeY];
 
-		for (int x = 0; x < MAP_SIZE_X; ++x)
+		for (int x = 0; x < _sizeX; ++x)
 		{
-			for (int y = 0; y < MAP_SIZE_Y; ++y)
+			for (int y = 0; y < _sizeY; ++y)
 			{
 				uint oldType = map[x, y];
-
+				uint newType = oldType;
+				
 				bool matchesBaseType = (oldType | baseType) == baseType;
 				bool matchesCheckType = (oldType | checkType) == checkType;
 
 				if (matchesBaseType || matchesCheckType)
 				{
-					uint newType = oldType;
-					int count = neighborTypeCount(x, y, checkType);
+					int count = neighborTypeCount(x, y, checkType, allowWrapping, countInvalids);
 
 					if (matchesBaseType)
 						newType = count < limitForTileDeath ? checkType : baseType;
 					else // if (matchesCheckType)
 						newType = count > limitForTileBirth ? baseType : checkType;
-
-					newMap[x, y] = newType;
 				}
+
+				newMap[x, y] = newType;
 			}
 		}
 
 		this.map = newMap;
 	}
 
-	int neighborTypeCount(int centerX, int centerY, uint searchType, bool wrapMap = true, bool countInvalids = false)
+	public void printMap()
+	{
+		string logString = "\n";
+		for (int x = 0; x < _sizeX; ++x)
+		{
+			logString += ".";
+			for (int y = 0; y < _sizeY; ++y)
+			{
+				logString += "" + map[x, y].ToString().PadLeft(2, '0') + ".";
+			}
+			logString += "\n";
+		}
+
+		Debug.Log(logString);
+	}
+
+	/**
+	 * Private
+	 */
+	private int neighborTypeCount(int centerX, int centerY, uint searchType, bool wrapMap = true, bool countInvalids = false)
 	{
 		int count = 0;
 		for (int x = centerX - 1; x <= centerX + 1; ++x)
