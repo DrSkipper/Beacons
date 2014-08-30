@@ -3,10 +3,10 @@ using System.Collections;
 
 public class LevelGenerator : VoBehavior
 {
-	const uint TILE_TYPE_RED 	 = 0x000002;
-	const uint TILE_TYPE_BLUE 	 = 0x000004;
-	const uint TILE_TYPE_YELLOW  = 0x000008;
-	const uint TILE_TYPE_GREEN 	 = 0x000010;
+	public const uint TILE_TYPE_RED 	 = 0x000002;
+	public const uint TILE_TYPE_BLUE 	 = 0x000004;
+	public const uint TILE_TYPE_YELLOW  = 0x000008;
+	public const uint TILE_TYPE_GREEN 	 = 0x000010;
 	
 	const int MAP_SIZE_X = 50;
 	const int MAP_SIZE_Y = 50;
@@ -18,11 +18,11 @@ public class LevelGenerator : VoBehavior
 	{
 		this.map = new LevelGenMap(MAP_SIZE_X, MAP_SIZE_Y);
 		
-		map.printMap();
+		//map.printMap();
 		map.randomlyConvertTiles(LevelGenMap.TILE_TYPE_DEFAULT, LevelGenerator.TILE_TYPE_RED, 0.65f);
-		map.printMap();
+		//map.printMap();
 		map.runAutomataStep(LevelGenMap.TILE_TYPE_DEFAULT, LevelGenerator.TILE_TYPE_RED, 7, 4, true, false);
-		map.printMap();
+		//map.printMap();
 	}
 	
 	// Update is called once per frame
