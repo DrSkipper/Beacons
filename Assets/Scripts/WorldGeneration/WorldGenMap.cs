@@ -8,23 +8,19 @@ public class WorldGenMap
 	public const uint TILE_TYPE_DEFAULT = 0x000001;
 	public const uint TILE_TYPE_INVALID = 0xFFFFFF;
 
-	public uint[,] map;
+	public WorldGenTile[,] map;
 
 	private int _sizeX;
 	private int _sizeY;
 
 	public WorldGenMap(int sizeX, int sizeY, uint defaultType = TILE_TYPE_DEFAULT)
 	{
-		this.map = new uint[sizeX, sizeX];
 		_sizeX = sizeX;
 		_sizeY = sizeY;
-
-		for (int x = 0; x < _sizeX; ++x)
-		for (int y = 0; y < _sizeY; ++y)
-			map[x, y] = defaultType;
+		this.map = createEmptyMap(defaultType);
 	}
 
-	public uint tileTypeAtLocation(int x, int y, bool allowWrapping = false)
+	public WorldGenTile tileAtLocation(int x, int y, bool allowWrapping = false)
 	{
 		if (x >= 0 && x < _sizeX && 
 		    y >= 0 && y < _sizeY)
@@ -37,10 +33,10 @@ public class WorldGenMap
 			if 		(y < 0) 	  y += _sizeY;
 			else if (y >= _sizeY) y -= _sizeY;
 
-			return this.tileTypeAtLocation(x, y, false);
+			return this.tileAtLocation(x, y, false);
 		}
 
-		return TILE_TYPE_INVALID;
+		return new WorldGenTile(x, y, TILE_TYPE_INVALID);
 	}
 
 	//TODO - fcole - Change from chance to have guaranteed percentage of tiles to convert, maybe with leeway parameter.
@@ -52,21 +48,21 @@ public class WorldGenMap
 			for (int y = 0; y < _sizeY; ++y)
 			{
 				// If the type at this location matches a valid type, run a die roll to convert it
-				if ((map[x, y] | validBaseTypesMask) == validBaseTypesMask && Random.value <= chance)
-					map[x, y] = typeToConvertTo;
+				if ((map[x, y].type | validBaseTypesMask) == validBaseTypesMask && Random.value <= chance)
+					map[x, y].type = typeToConvertTo;
 			}
 		}
 	}
 
 	public void runAutomataStep(uint baseType, uint checkType, int limitForTileDeath, int limitForTileBirth, bool allowWrapping = true, bool countInvalids = false)
 	{
-		uint[,] newMap = new uint[_sizeX, _sizeY];
+		WorldGenTile[,] newMap = createEmptyMap();
 
 		for (int x = 0; x < _sizeX; ++x)
 		{
 			for (int y = 0; y < _sizeY; ++y)
 			{
-				uint oldType = map[x, y];
+				uint oldType = map[x, y].type;
 				uint newType = oldType;
 				
 				bool matchesBaseType = (oldType | baseType) == baseType;
@@ -82,7 +78,7 @@ public class WorldGenMap
 						newType = count > limitForTileBirth ? baseType : checkType;
 				}
 
-				newMap[x, y] = newType;
+				newMap[x, y].type = newType;
 			}
 		}
 
@@ -97,7 +93,7 @@ public class WorldGenMap
 			logString += ".";
 			for (int y = 0; y < _sizeY; ++y)
 			{
-				logString += "" + map[x, y].ToString().PadLeft(2, '0') + ".";
+				logString += "" + map[x, y].type.ToString().PadLeft(2, '0') + ".";
 			}
 			logString += "\n";
 		}
@@ -119,7 +115,7 @@ public class WorldGenMap
 				if (x == centerX && y == centerY)
 					continue;
 
-				uint type = this.tileTypeAtLocation(x, y, wrapMap);
+				uint type = this.tileAtLocation(x, y, wrapMap).type;
 				if (type == TILE_TYPE_INVALID)
 				{
 					if (countInvalids)
@@ -132,5 +128,20 @@ public class WorldGenMap
 			}
 		}
 		return count;
+	}
+
+	private WorldGenTile[,] createEmptyMap(uint fillType = WorldGenMap.TILE_TYPE_DEFAULT)
+	{
+		WorldGenTile[,] newMap = new WorldGenTile[_sizeX, _sizeY];
+
+		for (int x = 0; x < _sizeX; ++x)
+		{
+			for (int y = 0; y < _sizeY; ++y)
+			{
+				newMap[x, y] = new WorldGenTile(x, y, fillType);
+			}
+		}
+
+		return newMap;
 	}
 }

@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialConversionRate: .649999976
-  stepIterations: 20
+  stepIterations: 30
   deathLimit: 7
   birthLimit: 4
 --- !u!4 &858696579

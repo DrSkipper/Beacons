@@ -19,7 +19,7 @@ public class WorldVisualizer : VoBehavior
 			_once = true;
 
 			WorldGenerator generator = this.gameObject.GetComponent<WorldGenerator>();
-			uint[,] map = generator.map.map;
+			WorldGenTile[,] map = generator.map.map;
 
 			Sprite spriteA = Resources.Load<Sprite>("Sprites/blue_square");
 			Sprite spriteB = Resources.Load<Sprite>("Sprites/yellow_square");
@@ -35,7 +35,7 @@ public class WorldVisualizer : VoBehavior
 				{
 					GameObject go = new GameObject();
 					SpriteRenderer sprite = go.AddComponent<SpriteRenderer>();
-					sprite.sprite = map[x, y] == WorldGenerator.TILE_TYPE_RED ? spriteA : spriteB;
+					sprite.sprite = map[x, y].type == WorldGenerator.TILE_TYPE_RED ? spriteA : spriteB;
 					Bounds bounds = sprite.bounds;
 					go.transform.position = new Vector3((x - halfWidth) * bounds.size.x, (y - halfHeight) * bounds.size.y, 0);
 				}
