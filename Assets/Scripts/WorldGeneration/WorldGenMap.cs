@@ -3,7 +3,7 @@ using System.Collections;
 
 //NOTE - fcole - Cellular Automata level generation code heavily inspired by this link:
 // http://gamedev.tutsplus.com/tutorials/implementation/cave-levels-cellular-automata/
-public class LevelGenMap
+public class WorldGenMap
 {
 	public const uint TILE_TYPE_DEFAULT = 0x000001;
 	public const uint TILE_TYPE_INVALID = 0xFFFFFF;
@@ -13,7 +13,7 @@ public class LevelGenMap
 	private int _sizeX;
 	private int _sizeY;
 
-	public LevelGenMap(int sizeX, int sizeY, uint defaultType = TILE_TYPE_DEFAULT)
+	public WorldGenMap(int sizeX, int sizeY, uint defaultType = TILE_TYPE_DEFAULT)
 	{
 		this.map = new uint[sizeX, sizeX];
 		_sizeX = sizeX;
