@@ -82,8 +82,8 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 858696579}
-  - 114: {fileID: 858696578}
   - 114: {fileID: 858696580}
+  - 114: {fileID: 858696578}
   m_Layer: 0
   m_Name: GenerationController
   m_TagString: Untagged
@@ -99,13 +99,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 858696577}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1489d741670158c43b78735c036ef191, type: 3}
+  m_Script: {fileID: 11500000, guid: 26120f7c606146c4ea92d1f9c3c34a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialConversionRate: .649999976
-  stepIterations: 30
-  deathLimit: 7
-  birthLimit: 4
+  mapSizeX: 50
+  mapSizeY: 50
+  areaTypes: 5
+  overlayTypes: 1
+  areaInitialConversionRate: .649999976
+  areaStepIterations: 30
+  areaDeathLimit: 7
+  areaBirthLimit: 4
+  overlayInitialConversionRate: .5
+  overlayStepIterations: 20
+  overlayDeathLimit: 7
+  overlayBirthLimit: 4
 --- !u!4 &858696579
 Transform:
   m_ObjectHideFlags: 0
@@ -129,6 +137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13a23153bb9bb5f4585abd5445f80eff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  updateStepLength: .150000006
+  generationFramesPerUpdate: 2
 --- !u!1 &1551960883
 GameObject:
   m_ObjectHideFlags: 0
