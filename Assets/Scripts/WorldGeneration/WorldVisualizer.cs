@@ -5,32 +5,39 @@ public class WorldVisualizer : VoBehavior
 {
 	public float updateStepLength = 0.2f;
 	public int generationFramesPerUpdate = 2;
+	public bool runOnStartup = false;
 
 	// Use this for initialization
 	void Start()
 	{
 		_generator = this.gameObject.GetComponent<WorldGenerator>();
 		_generator.updateDelegate += this.mapWasUpdated;
-		_generator.clearMap();
-		setupMapDisplay();
-		_animationTimer = new Timer(this.updateStepLength, true, false, this.animationTimerCallback);
+		if (this.runOnStartup)
+			this.restart();
 	}
 	
 	// Update is called once per frame
 	void Update()
 	{
-		if (_animatingLastUpdate)
+		if (_running)
 		{
-			updateAnimation();
+			if (_animatingLastUpdate)
+			{
+				updateAnimation();
+			}
+			else if (_mapWasUpdated)
+			{
+				_mapWasUpdated = false;
+				startAnimation();
+			}
+			else if (!_generationComplete)
+			{
+				_generator.runGenerationFrames(this.generationFramesPerUpdate);
+			}
 		}
-		else if (_mapWasUpdated)
+		else if (Input.GetKeyUp(KeyCode.Space))
 		{
-			_mapWasUpdated = false;
-			startAnimation();
-		}
-		else if (!_generationComplete)
-		{
-			_generator.runGenerationFrames(this.generationFramesPerUpdate);
+			this.restart();
 		}
 	}
 
@@ -38,7 +45,10 @@ public class WorldVisualizer : VoBehavior
 	{
 		_mapWasUpdated = true;
 		if (_generator.generationComplete)
+		{
 			_generationComplete = true;
+			_running = false;
+		}
 	}
 
 	public void animationTimerCallback()
@@ -47,9 +57,23 @@ public class WorldVisualizer : VoBehavior
 		_animatingLastUpdate = false;
 	}
 
+	public void restart()
+	{
+		_generator.clearMap();
+		setupMapDisplay();
+		if (_animationTimer != null)
+			_animationTimer.invalidate();
+		_animationTimer = new Timer(this.updateStepLength, true, false, this.animationTimerCallback);
+		_animatingLastUpdate = false;
+		_mapWasUpdated = false;
+		_generationComplete = false;
+		_running = true;
+	}
+
 	/**
 	 * Private
 	 */
+	private bool _running;
 	private bool _mapWasUpdated;
 	private bool _animatingLastUpdate;
 	private bool _generationComplete;
@@ -86,6 +110,17 @@ public class WorldVisualizer : VoBehavior
 
 	private void setupMapDisplay()
 	{
+		if (_tileRenderers != null)
+		{
+			for (int x = 0; x < _tileRenderers.GetLength(0); ++x)
+			{
+				for (int y = 0; y < _tileRenderers.GetLength(1); ++y)
+				{
+					Destroy(_tileRenderers[x, y].gameObject);
+				}
+			}
+		}
+
 		WorldGenTile[,] map = _generator.map.map;
 
 		_spriteA = Resources.Load<Sprite>("Sprites/blue_square");

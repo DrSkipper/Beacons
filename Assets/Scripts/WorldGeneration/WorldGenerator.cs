@@ -23,10 +23,17 @@ public class WorldGenerator : VoBehavior
 	public void clearMap()
 	{
 		this.map = new WorldGenMap(mapSizeX, mapSizeY);
+		this.generationComplete = false;
+		_frames = 0;
 	}
 
 	public virtual void runGenerationFrames(int frames)
 	{
 		// Override in subclass
 	}
+
+	/**
+	 * Protected
+	 */
+	protected int _frames;
 }

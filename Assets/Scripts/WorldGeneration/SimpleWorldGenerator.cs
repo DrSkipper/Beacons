@@ -55,8 +55,6 @@ public class SimpleWorldGenerator : WorldGenerator
 	/**
 	 * Private
 	 */
-	private int _frames;
-	
 	private void runFirstStage(int startFrame, int frames)
 	{
 		map.randomlyConvertTiles(WorldGenMap.TILE_TYPE_DEFAULT, WorldGenerator.TILE_TYPE_A, this.initialConversionRate);

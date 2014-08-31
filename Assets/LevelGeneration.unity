@@ -107,7 +107,7 @@ MonoBehaviour:
   areaTypes: 5
   overlayTypes: 1
   areaInitialConversionRate: .649999976
-  areaStepIterations: 30
+  areaStepIterations: 36
   areaDeathLimit: 7
   areaBirthLimit: 4
   overlayInitialConversionRate: .5
@@ -137,8 +137,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13a23153bb9bb5f4585abd5445f80eff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  updateStepLength: .150000006
+  updateStepLength: .100000001
   generationFramesPerUpdate: 2
+  runOnStartup: 0
 --- !u!1 &1551960883
 GameObject:
   m_ObjectHideFlags: 0
