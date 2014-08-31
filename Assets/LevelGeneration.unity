@@ -139,7 +139,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   updateStepLength: .100000001
   generationFramesPerUpdate: 2
-  runOnStartup: 0
+  runOnStartup: 1
+  allowInterruption: 1
 --- !u!1 &1551960883
 GameObject:
   m_ObjectHideFlags: 0

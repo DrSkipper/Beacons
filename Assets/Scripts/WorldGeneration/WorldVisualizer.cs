@@ -6,6 +6,7 @@ public class WorldVisualizer : VoBehavior
 	public float updateStepLength = 0.2f;
 	public int generationFramesPerUpdate = 2;
 	public bool runOnStartup = false;
+	public bool allowInterruption = false;
 
 	// Use this for initialization
 	void Start()
@@ -35,10 +36,13 @@ public class WorldVisualizer : VoBehavior
 				_generator.runGenerationFrames(this.generationFramesPerUpdate);
 			}
 		}
-		else if (Input.GetKeyUp(KeyCode.Space))
+		else if (!this.allowInterruption && Input.GetKeyUp(KeyCode.Space))
 		{
 			this.restart();
 		}
+
+		if (this.allowInterruption && Input.GetKeyUp(KeyCode.Space))
+			this.restart();
 	}
 
 	public void mapWasUpdated()
