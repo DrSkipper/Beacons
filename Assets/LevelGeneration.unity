@@ -107,7 +107,7 @@ MonoBehaviour:
   areaTypes: 5
   overlayTypes: 1
   areaInitialConversionRate: .649999976
-  areaStepIterations: 36
+  areaStepIterations: 28
   areaDeathLimit: 7
   areaBirthLimit: 4
   overlayInitialConversionRate: .5

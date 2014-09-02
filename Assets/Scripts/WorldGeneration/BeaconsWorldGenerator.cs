@@ -27,6 +27,7 @@ public class BeaconsWorldGenerator : WorldGenerator
 		int startFrame = _frames;
 		bool stageHit = false;
 
+		// Random fill
 		if (_frames < FIRST_STAGE_FRAMES)
 		{
 			stageHit = true;
@@ -46,10 +47,39 @@ public class BeaconsWorldGenerator : WorldGenerator
 			}
 		}
 
+		// CA
 		if (framesRemaining > 0 && !stageHit)
 		{
-			runSecondStage(startFrame, framesRemaining);
-			framesRemaining = 0;
+			stageHit = true;
+			int framesRun = runSecondStage(startFrame, framesRemaining);
+			framesRemaining -= framesRun;
+		}
+
+		// Detect islands
+		if (framesRemaining > 0 && !stageHit)
+		{
+			stageHit = true;
+			int framesRun = runThirdStage(startFrame, framesRemaining);
+			framesRemaining -= framesRun;
+
+			//TODO - fcole - If num islands < areaTypes / 2 + 1 then clear map and set us back to stage 1 (or use some other "good enough" tolerance)
+
+		}
+
+		// Expand islands
+		if (framesRemaining > 0 && !stageHit)
+		{
+			stageHit = true;
+			int framesRun = runFourthStage(startFrame, framesRemaining);
+			framesRemaining -= framesRun;
+		}
+
+		// Generate overlay map
+		if (framesRemaining > 0 && !stageHit)
+		{
+			stageHit = true;
+			int framesRun = runFifthStage(startFrame, framesRemaining);
+			framesRemaining -= framesRun;
 		}
 
 		_frames += frames - framesRemaining;
@@ -68,7 +98,8 @@ public class BeaconsWorldGenerator : WorldGenerator
 		map.randomlyConvertTiles(WorldGenMap.TILE_TYPE_DEFAULT, WorldGenerator.TILE_TYPE_A, this.areaInitialConversionRate);
 	}
 
-	private void runSecondStage(int startFrame, int frames)
+	// Returns frames run
+	private int runSecondStage(int startFrame, int frames)
 	{
 		int startingIteration = startFrame - FIRST_STAGE_FRAMES;
 		int iterations = startingIteration + frames;
@@ -81,5 +112,23 @@ public class BeaconsWorldGenerator : WorldGenerator
 		
 		for (int i = startingIteration; i < iterations; ++i)
 			map.runAutomataStep(WorldGenMap.TILE_TYPE_DEFAULT, WorldGenerator.TILE_TYPE_A, this.areaDeathLimit, this.areaBirthLimit, true, false);
+
+		return iterations - startingIteration;
+	}
+
+	// Returns frames run
+	private int runThirdStage(int startFrame, int frames)
+	{
+		return 0;
+	}
+	
+	private int runFourthStage(int startFrame, int frames)
+	{
+		return 0;
+	}
+	
+	private int runFifthStage(int startFrame, int frames)
+	{
+		return 0;
 	}
 }
