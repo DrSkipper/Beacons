@@ -84,6 +84,13 @@ public class WorldGenMap
 
 		this.map = newMap;
 	}
+	
+	public void clearProcessedFlags()
+	{
+		for (int x = 0; x < _sizeX; ++x)
+		for (int y = 0; y < _sizeY; ++y)
+			map[x, y].processed = false;
+	}
 
 	public void printMap()
 	{

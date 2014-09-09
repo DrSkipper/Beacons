@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BeaconsWorldGenerator : WorldGenerator
 {
@@ -130,5 +131,63 @@ public class BeaconsWorldGenerator : WorldGenerator
 	private int runFifthStage(int startFrame, int frames)
 	{
 		return 0;
+	}
+
+	/*
+	 * Returns list of tiles with same time as rootTile within reach of flood fill traversal
+	 * (returns an "island" that includes rootTile)
+	 * 
+	 * http://en.wikipedia.org/wiki/Flood_fill
+	 * 
+	 * Flood-fill (node, target-color, replacement-color):
+	 * 1. If target-color is equal to replacement-color, return.
+	 * 2. Set Q to the empty queue.
+	 * 3. Add node to the end of Q.
+	 * 4. While Q is not empty: 
+	 * 5.     Set n equal to the last element of Q.
+	 * 6.     Remove last element from Q.
+	 * 7.     If the color of n is equal to target-color:
+	 * 8.         Set the color of n to replacement-color and mark "n" as processed.
+	 * 9.         Add west node to end of Q if west has not been processed yet.
+	 * 10.        Add east node to end of Q if east has not been processed yet.
+	 * 11.        Add north node to end of Q if north has not been processed yet.
+	 * 12.        Add south node to end of Q if south has not been processed yet.
+	 * 13. Return.
+ 	 */
+	private List<WorldGenTile> floodFill(WorldGenTile rootTile, bool allowWrapping)
+	{
+		this.map.clearProcessedFlags();
+
+		List<WorldGenTile> reachedTiles = new List<WorldGenTile>();
+		List<WorldGenTile> stack = new List<WorldGenTile>();
+		uint checkType = rootTile.type;
+		processIntoStack(stack, rootTile);
+
+		while (reachedTiles.Count > 0)
+		{
+			WorldGenTile currentTile = stack[0];
+			stack.RemoveAt(0);
+
+			//if ((currentTile.type & checkType) != 0x000000) // More lenient/inclusive check
+			if (currentTile.type == checkType) // Exact equality
+			{
+				reachedTiles.Add(currentTile);
+				processIntoStack(stack, this.map.tileAtLocation(currentTile.x - 1, currentTile.y, allowWrapping));
+				processIntoStack(stack, this.map.tileAtLocation(currentTile.x + 1, currentTile.y, allowWrapping));
+				processIntoStack(stack, this.map.tileAtLocation(currentTile.x, currentTile.y - 1, allowWrapping));
+				processIntoStack(stack, this.map.tileAtLocation(currentTile.x, currentTile.y + 1, allowWrapping));
+			}
+		}
+
+		return reachedTiles;
+	}
+
+	private void processIntoStack(List<WorldGenTile> stack, WorldGenTile tile)
+	{
+		if (tile != null && !tile.processed)
+		{
+			stack.Insert(0, tile);
+			tile.processed = true;
+		}
 	}
 }
