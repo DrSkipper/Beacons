@@ -17,122 +17,121 @@ public class BeaconsWorldGenerator : WorldGenerator
 	public int overlayDeathLimit = 7;
 	public int overlayBirthLimit = 4;
 
-	private const int FIRST_STAGE_FRAMES = 1;
+	private const int NUM_STAGES = 5;
+	private delegate void RunStageDelegate(int stageIndex, int frames);
 
 	void Start() { }
 	void Update() { }
 	
 	public override void runGenerationFrames(int frames)
 	{
-		int framesRemaining = frames;
-		int startFrame = _frames;
-		bool stageHit = false;
+		if (_stagesCompleted[_currentStage])
+			++_currentStage;
 
-		// Random fill
-		if (_frames < FIRST_STAGE_FRAMES)
+		if (_currentStage >= NUM_STAGES)
 		{
-			stageHit = true;
-			int stageFramesRemaining = FIRST_STAGE_FRAMES - startFrame;
-			bool willCompleteStage = stageFramesRemaining <= framesRemaining;
+			this.generationComplete = true;
+		}
+		else
+		{
+			_stageDelegates[_currentStage](_currentStage, frames);
+			if (_stagesCompleted[_currentStage])
+			{
+				++_currentStage;
 
-			if (willCompleteStage)
-			{
-				runFirstStage(startFrame, stageFramesRemaining);
-				framesRemaining -= stageFramesRemaining;
-				startFrame += stageFramesRemaining;
-			}
-			else
-			{
-				runFirstStage(startFrame, framesRemaining);
-				framesRemaining -= frames; // go to 0
+				if (_currentStage >= NUM_STAGES)
+					this.generationComplete = true;
 			}
 		}
-
-		// CA
-		if (framesRemaining > 0 && !stageHit)
-		{
-			stageHit = true;
-			int framesRun = runSecondStage(startFrame, framesRemaining);
-			framesRemaining -= framesRun;
-		}
-
-		// Detect islands
-		if (framesRemaining > 0 && !stageHit)
-		{
-			stageHit = true;
-			int framesRun = runThirdStage(startFrame, framesRemaining);
-			framesRemaining -= framesRun;
-
-			//TODO - fcole - If num islands < areaTypes / 2 + 1 then clear map and set us back to stage 1 (or use some other "good enough" tolerance)
-
-		}
-
-		// Expand islands
-		if (framesRemaining > 0 && !stageHit)
-		{
-			stageHit = true;
-			int framesRun = runFourthStage(startFrame, framesRemaining);
-			framesRemaining -= framesRun;
-		}
-
-		// Generate overlay map
-		if (framesRemaining > 0 && !stageHit)
-		{
-			stageHit = true;
-			int framesRun = runFifthStage(startFrame, framesRemaining);
-			framesRemaining -= framesRun;
-		}
-
-		_frames += frames - framesRemaining;
-
+		
 		if (this.updateDelegate != null)
 		{
 			this.updateDelegate();
 		}
 	}
 
+	public override void clearMap()
+	{
+		base.clearMap();
+		_islands = new List<WorldGenTile>[areaTypes];
+		_stagesCompleted = new bool[NUM_STAGES];
+		_framesRunByStage = new int[NUM_STAGES];
+		_currentStage = 0;
+
+		if (_stageDelegates == null)
+		{
+			_stageDelegates = new RunStageDelegate[] {
+				randomConversionStage, 
+				areaCellularAutomataStage, 
+				islandAssignmentStage, 
+				islandExpansionStage, 
+				overlayCellularAutomataStage
+			};
+		}
+	}
+
 	/**
 	 * Private
 	 */
-	private void runFirstStage(int startFrame, int frames)
+	private List<WorldGenTile>[] _islands;
+	private bool[] _stagesCompleted;
+	private int[] _framesRunByStage;
+	private int _currentStage;
+	private RunStageDelegate[] _stageDelegates;
+
+	private void randomConversionStage(int stageIndex, int frames)
 	{
 		map.randomlyConvertTiles(WorldGenMap.TILE_TYPE_DEFAULT, WorldGenerator.TILE_TYPE_A, this.areaInitialConversionRate);
+		_framesRunByStage[stageIndex] += 1;
+		_stagesCompleted[stageIndex] = true;
 	}
 
 	// Returns frames run
-	private int runSecondStage(int startFrame, int frames)
+	private void areaCellularAutomataStage(int stageIndex, int frames)
 	{
-		int startingIteration = startFrame - FIRST_STAGE_FRAMES;
+		int startingIteration = _framesRunByStage[stageIndex];
 		int iterations = startingIteration + frames;
 
 		if (iterations >= this.areaStepIterations)
 		{
 			iterations = areaStepIterations;
-			this.generationComplete = true;
+			_stagesCompleted[stageIndex] = true;
 		}
 		
 		for (int i = startingIteration; i < iterations; ++i)
 			map.runAutomataStep(WorldGenMap.TILE_TYPE_DEFAULT, WorldGenerator.TILE_TYPE_A, this.areaDeathLimit, this.areaBirthLimit, true, false);
 
-		return iterations - startingIteration;
+		_framesRunByStage[stageIndex] = iterations;
 	}
 
 	// Returns frames run
-	private int runThirdStage(int startFrame, int frames)
+	private void islandAssignmentStage(int stageIndex, int frames)
 	{
-		return 0;
+//		if (_islands == null)
+//			_islands = new List<WorldGenTile>[this.areaTypes];
+//
+//		uint[] types = new uint[] {TILE_TYPE_A, TILE_TYPE_B, TILE_TYPE_C, TILE_TYPE_D, TILE_TYPE_E, TILE_TYPE_F};
+//
+//		int nextIslandType = _islands.Length;
+//		int i = 0;
+//		for (; i < frames; ++i)
+//		{
+//			if (_islands.Length >= areaTypes || _islands.Length >= types.Length)
+//				break;
+//		}
+//
+//		return frames - i;
+		//TODO - fcole - If num islands < areaTypes / 2 + 1 then clear map and set us back to stage 1 (or use some other "good enough" tolerance)
 	}
 	
-	private int runFourthStage(int startFrame, int frames)
+	private void islandExpansionStage(int stageIndex, int frames)
 	{
-		return 0;
 	}
 	
-	private int runFifthStage(int startFrame, int frames)
+	private void overlayCellularAutomataStage(int stageIndex, int frames)
 	{
-		return 0;
 	}
-
+	
 	/*
 	 * Returns list of tiles with same time as rootTile within reach of flood fill traversal
 	 * (returns an "island" that includes rootTile)

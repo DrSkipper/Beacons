@@ -20,7 +20,7 @@ public class WorldGenerator : VoBehavior
 	public delegate void MapUpdateDelegate();
 	public MapUpdateDelegate updateDelegate;
 
-	public void clearMap()
+	public virtual void clearMap()
 	{
 		this.map = new WorldGenMap(mapSizeX, mapSizeY);
 		this.generationComplete = false;
@@ -30,6 +30,14 @@ public class WorldGenerator : VoBehavior
 	public virtual void runGenerationFrames(int frames)
 	{
 		// Override in subclass
+	}
+
+	public virtual void generateEntireMap()
+	{
+		while (!this.generationComplete)
+		{
+			this.runGenerationFrames(4096);
+		}
 	}
 
 	/**

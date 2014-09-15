@@ -11,8 +11,7 @@ public class WorldGeometryConstructor : VoBehavior
 	{
 		_generator = this.gameObject.GetComponent<WorldGenerator>();
 		_generator.clearMap();
-		_generator.runGenerationFrames(4096);
-		_generator.runGenerationFrames(4096);
+		_generator.generateEntireMap();
 		setupMapDisplay();
 	}
 	
