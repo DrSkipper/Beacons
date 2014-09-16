@@ -5,6 +5,7 @@ public class WorldVisualizer : VoBehavior
 {
 	public float updateStepLength = 0.2f;
 	public int generationFramesPerUpdate = 2;
+	public int initialFramesToRun = 0;
 	public bool runOnStartup = false;
 	public bool allowInterruption = false;
 
@@ -33,7 +34,23 @@ public class WorldVisualizer : VoBehavior
 			}
 			else if (!_generationComplete)
 			{
-				_generator.runGenerationFrames(this.generationFramesPerUpdate);
+				if (!_initialFramesRun)
+				{
+					_initialFramesRun = true;
+					if (this.initialFramesToRun > 0)
+					{
+						for (int i = 0; i < this.initialFramesToRun; ++i)
+							_generator.runGenerationFrames(1);
+					}
+					else
+					{
+						_generator.runGenerationFrames(this.generationFramesPerUpdate);
+					}
+				}
+				else
+				{
+					_generator.runGenerationFrames(this.generationFramesPerUpdate);
+				}
 			}
 		}
 		else if (!this.allowInterruption && Input.GetKeyUp(KeyCode.Space))
@@ -72,6 +89,7 @@ public class WorldVisualizer : VoBehavior
 		_mapWasUpdated = false;
 		_generationComplete = false;
 		_running = true;
+		_initialFramesRun = false;
 	}
 
 	/**
@@ -81,10 +99,17 @@ public class WorldVisualizer : VoBehavior
 	private bool _mapWasUpdated;
 	private bool _animatingLastUpdate;
 	private bool _generationComplete;
+	private bool _initialFramesRun;
 	private WorldGenerator _generator;
 
+	private Sprite _defaultSprite;
+	private Sprite _invalidSprite;
 	private Sprite _spriteA;
 	private Sprite _spriteB;
+	private Sprite _spriteC;
+	private Sprite _spriteD;
+	private Sprite _spriteE;
+	private Sprite _spriteF;
 	private SpriteRenderer[,] _tileRenderers;
 	private Timer _animationTimer;
 
@@ -126,9 +151,15 @@ public class WorldVisualizer : VoBehavior
 		}
 
 		WorldGenTile[,] map = _generator.map.map;
-
-		_spriteA = Resources.Load<Sprite>("Sprites/blue_square");
-		_spriteB = Resources.Load<Sprite>("Sprites/yellow_square");
+		
+		_defaultSprite = Resources.Load<Sprite>("Sprites/blue_square");
+		_invalidSprite = Resources.Load<Sprite>("Sprites/black_square");
+		_spriteA = Resources.Load<Sprite>("Sprites/yellow_square");
+		_spriteB = Resources.Load<Sprite>("Sprites/blue_square");
+		_spriteC = Resources.Load<Sprite>("Sprites/red_square");
+		_spriteD = Resources.Load<Sprite>("Sprites/green_square");
+		_spriteE = Resources.Load<Sprite>("Sprites/pink_square");
+		_spriteF = Resources.Load<Sprite>("Sprites/white_square");
 		
 		int width = map.GetLength(0);
 		int height = map.GetLength(1);
@@ -153,6 +184,13 @@ public class WorldVisualizer : VoBehavior
 
 	private Sprite spriteForType(uint type)
 	{
-		return type == WorldGenerator.TILE_TYPE_A ? _spriteA : _spriteB;
+		if (type == WorldGenMap.TILE_TYPE_DEFAULT)	return _defaultSprite;
+		if (type == WorldGenerator.TILE_TYPE_A)		return _spriteA;
+		if (type == WorldGenerator.TILE_TYPE_B)		return _spriteB;
+		if (type == WorldGenerator.TILE_TYPE_C)		return _spriteC;
+		if (type == WorldGenerator.TILE_TYPE_D)		return _spriteD;
+		if (type == WorldGenerator.TILE_TYPE_E)		return _spriteE;
+		if (type == WorldGenerator.TILE_TYPE_F)		return _spriteF;
+		return _invalidSprite;
 	}
 }

@@ -102,12 +102,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26120f7c606146c4ea92d1f9c3c34a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSizeX: 50
-  mapSizeY: 50
+  mapSizeX: 100
+  mapSizeY: 100
   areaTypes: 5
   overlayTypes: 1
   areaInitialConversionRate: .649999976
-  areaStepIterations: 28
+  areaStepIterations: 29
   areaDeathLimit: 7
   areaBirthLimit: 4
   overlayInitialConversionRate: .5
@@ -139,6 +139,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   updateStepLength: .100000001
   generationFramesPerUpdate: 2
+  initialFramesToRun: 2
   runOnStartup: 1
   allowInterruption: 1
 --- !u!1 &1551960883
@@ -201,7 +202,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 3
+  orthographic size: 4.0999999
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
