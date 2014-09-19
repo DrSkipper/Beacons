@@ -53,7 +53,8 @@ public class BeaconsWorldGenerator : WorldGenerator
 	public override void clearMap()
 	{
 		base.clearMap();
-		_islands = new List<WorldGenTile>[areaTypes];
+		_islands = null;
+		_possibleIslandTiles = null;
 		_stagesCompleted = new bool[NUM_STAGES];
 		_framesRunByStage = new int[NUM_STAGES];
 		_currentStage = 0;
@@ -73,7 +74,8 @@ public class BeaconsWorldGenerator : WorldGenerator
 	/**
 	 * Private
 	 */
-	private List<WorldGenTile>[] _islands;
+	private List<List<WorldGenTile>> _islands;
+	private List<WorldGenTile> _possibleIslandTiles;
 	private bool[] _stagesCompleted;
 	private int[] _framesRunByStage;
 	private int _currentStage;
@@ -107,20 +109,62 @@ public class BeaconsWorldGenerator : WorldGenerator
 	// Returns frames run
 	private void islandAssignmentStage(int stageIndex, int frames)
 	{
-//		if (_islands == null)
-//			_islands = new List<WorldGenTile>[this.areaTypes];
-//
-//		uint[] types = new uint[] {TILE_TYPE_A, TILE_TYPE_B, TILE_TYPE_C, TILE_TYPE_D, TILE_TYPE_E, TILE_TYPE_F};
-//
-//		int nextIslandType = _islands.Length;
-//		int i = 0;
-//		for (; i < frames; ++i)
-//		{
-//			if (_islands.Length >= areaTypes || _islands.Length >= types.Length)
-//				break;
-//		}
-//
-//		return frames - i;
+		if (_islands == null)
+			_islands = new List<List<WorldGenTile>>();
+
+		if (_possibleIslandTiles == null)
+			_possibleIslandTiles = this.map.allTilesMatchingType(TILE_TYPE_A);
+
+		uint[] types = new uint[] {TILE_TYPE_F, TILE_TYPE_E, TILE_TYPE_D, TILE_TYPE_C, TILE_TYPE_B, TILE_TYPE_A};
+
+		if (_islands.Count >= areaTypes || _islands.Count >= types.Length || _possibleIslandTiles.Count == 0)
+		{
+			// If we're already done, mark stage complete
+			_stagesCompleted[stageIndex] = true;
+		}
+		else
+		{
+			for (int i = 0; i < frames; ++i)
+			{
+				uint nextIslandType = types[_islands.Count];
+				WorldGenTile islandRootTile = _possibleIslandTiles[Random.Range(0, _possibleIslandTiles.Count - 1)];
+
+				// Fill an island
+				List<WorldGenTile> island = floodFill(islandRootTile, true);
+
+				//Debug.Log("type = " + nextIslandType + ", root type = " + islandRootTile.type + ", island size = " + island.Count);
+
+				// Remove filled tiles from possible island roots, and set the new type
+				foreach (WorldGenTile tile in island)
+				{
+					_possibleIslandTiles.Remove(tile);
+					tile.type = nextIslandType;
+				}
+
+				// Store the island
+				_islands.Add(island);
+
+				// Check if we're done
+				if (_islands.Count >= areaTypes || _islands.Count >= types.Length || _possibleIslandTiles.Count == 0)
+				{
+					_stagesCompleted[stageIndex] = true;
+					break;
+				}
+			}
+		}
+
+		//if (_stagesCompleted[stageIndex])
+		//	this.map.printMap();
+
+		// Once the stage is done, eliminate any remaining islands
+		if (_stagesCompleted[stageIndex])
+		{
+			foreach (WorldGenTile tile in _possibleIslandTiles)
+				tile.type = WorldGenMap.TILE_TYPE_DEFAULT;
+
+			_possibleIslandTiles = null;
+		}
+
 		//TODO - fcole - If num islands < areaTypes / 2 + 1 then clear map and set us back to stage 1 (or use some other "good enough" tolerance)
 	}
 	
@@ -162,7 +206,7 @@ public class BeaconsWorldGenerator : WorldGenerator
 		uint checkType = rootTile.type;
 		processIntoStack(stack, rootTile);
 
-		while (reachedTiles.Count > 0)
+		while (stack.Count > 0)
 		{
 			WorldGenTile currentTile = stack[0];
 			stack.RemoveAt(0);

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 //NOTE - fcole - Cellular Automata level generation code heavily inspired by this link:
 // http://gamedev.tutsplus.com/tutorials/implementation/cave-levels-cellular-automata/
@@ -83,6 +84,22 @@ public class WorldGenMap
 		}
 
 		this.map = newMap;
+	}
+
+	public List<WorldGenTile> allTilesMatchingType(uint type)
+	{
+		List<WorldGenTile> tiles = new List<WorldGenTile>();
+
+		for (int x = 0; x < _sizeX; ++x)
+		{
+			for (int y = 0; y < _sizeY; ++y)
+			{
+				if ((map[x, y].type | type) == type)
+					tiles.Add(map[x, y]);
+			}
+		}
+
+		return tiles;
 	}
 	
 	public void clearProcessedFlags()

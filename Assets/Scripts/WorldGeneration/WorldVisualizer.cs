@@ -155,7 +155,7 @@ public class WorldVisualizer : VoBehavior
 		_defaultSprite = Resources.Load<Sprite>("Sprites/blue_square");
 		_invalidSprite = Resources.Load<Sprite>("Sprites/black_square");
 		_spriteA = Resources.Load<Sprite>("Sprites/yellow_square");
-		_spriteB = Resources.Load<Sprite>("Sprites/blue_square");
+		_spriteB = Resources.Load<Sprite>("Sprites/yellow_square");
 		_spriteC = Resources.Load<Sprite>("Sprites/red_square");
 		_spriteD = Resources.Load<Sprite>("Sprites/green_square");
 		_spriteE = Resources.Load<Sprite>("Sprites/pink_square");
