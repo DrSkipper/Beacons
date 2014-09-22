@@ -54,6 +54,7 @@ public class BeaconsWorldGenerator : WorldGenerator
 	{
 		base.clearMap();
 		_islands = null;
+		_islandBoundryTiles = null;
 		_possibleIslandTiles = null;
 		_stagesCompleted = new bool[NUM_STAGES];
 		_framesRunByStage = new int[NUM_STAGES];
@@ -75,6 +76,7 @@ public class BeaconsWorldGenerator : WorldGenerator
 	 * Private
 	 */
 	private List<List<WorldGenTile>> _islands;
+	private List<List<WorldGenTile>> _islandBoundryTiles;
 	private List<WorldGenTile> _possibleIslandTiles;
 	private bool[] _stagesCompleted;
 	private int[] _framesRunByStage;
@@ -170,10 +172,43 @@ public class BeaconsWorldGenerator : WorldGenerator
 	
 	private void islandExpansionStage(int stageIndex, int frames)
 	{
+		if (_islandBoundryTiles == null)
+		{
+			_islandBoundryTiles = new List<List<WorldGenTile>>();
+			foreach (List<WorldGenTile> island in _islands)
+			{
+				_islandBoundryTiles.Add(new List<WorldGenTile>(island));
+			}
+		}
+
+		for (int i = 0; i < frames; ++i)
+		{
+			bool allEmpty = true;
+			foreach (List<WorldGenTile> boundryTiles in _islandBoundryTiles)
+			{
+				List<WorldGenTile> boundryTilesCopy = new List<WorldGenTile>(boundryTiles);
+				foreach (WorldGenTile tile in boundryTilesCopy)
+				{
+					expandCell(tile, boundryTiles);
+				}
+
+				if (boundryTiles.Count > 0)
+					allEmpty = false;
+			}
+
+			if (allEmpty)
+			{
+				_stagesCompleted[stageIndex] = true;
+				break;
+			}
+		}
+
+		
 	}
 	
 	private void overlayCellularAutomataStage(int stageIndex, int frames)
 	{
+		_stagesCompleted[stageIndex] = true;
 	}
 	
 	/*
@@ -232,5 +267,73 @@ public class BeaconsWorldGenerator : WorldGenerator
 			stack.Insert(0, tile);
 			tile.processed = true;
 		}
+	}
+
+	private void expandCell(WorldGenTile tile, List<WorldGenTile> container)
+	{
+		WorldGenTile up = this.map.tileAtLocation(tile.x, tile.y - 1, true);
+		WorldGenTile down = this.map.tileAtLocation(tile.x, tile.y + 1, true);
+		WorldGenTile left = this.map.tileAtLocation(tile.x - 1, tile.y, true);
+		WorldGenTile right = this.map.tileAtLocation(tile.x + 1, tile.y, true);
+
+		bool upGood = true;
+		bool downGood = true;
+		bool leftGood = true;
+		bool rightGood = true;
+
+		if (up.type == WorldGenMap.TILE_TYPE_DEFAULT)
+		{
+			if (Random.Range(0, 2) == 0)
+			{
+				up.type = tile.type;
+				container.Add(up);
+			}
+			else
+			{
+				upGood = false;
+			}
+		}
+		
+		if (down.type == WorldGenMap.TILE_TYPE_DEFAULT)
+		{
+			if (Random.Range(0, 2) == 0)
+			{
+				down.type = tile.type;
+				container.Add(down);
+			}
+			else
+			{
+				downGood = false;
+			}
+		}
+		
+		if (left.type == WorldGenMap.TILE_TYPE_DEFAULT)
+		{
+			if (Random.Range(0, 2) == 0)
+			{
+				left.type = tile.type;
+				container.Add(left);
+			}
+			else
+			{
+				leftGood = false;
+			}
+		}
+		
+		if (right.type == WorldGenMap.TILE_TYPE_DEFAULT)
+		{
+			if (Random.Range(0, 2) == 0)
+			{
+				right.type = tile.type;
+				container.Add(right);
+			}
+			else
+			{
+				rightGood = false;
+			}
+		}
+
+		if (upGood && downGood && leftGood && rightGood)
+			container.Remove(tile);
 	}
 }
