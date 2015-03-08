@@ -48,6 +48,6 @@ public class TextureTiling : VoBehavior
 		// Figure out texture-to-mesh width based on user set texture-to-mesh height
 		float textureToMeshX = ((float)this.texture.width/this.texture.height)*this.textureToMeshZ;
 		
-		gameObject.renderer.material.mainTextureScale = new Vector2(planeSizeX*gameObject.transform.lossyScale.x/textureToMeshX, planeSizeZ*gameObject.transform.lossyScale.z/textureToMeshZ);
+		gameObject.GetComponent<Renderer>().material.mainTextureScale = new Vector2(planeSizeX*gameObject.transform.lossyScale.x/textureToMeshX, planeSizeZ*gameObject.transform.lossyScale.z/textureToMeshZ);
 	}
 }

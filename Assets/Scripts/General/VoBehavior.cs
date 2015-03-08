@@ -34,7 +34,7 @@ public class VoBehavior : MonoBehaviour
 		get
 		{
 			if (!_renderer)
-				_renderer = base.renderer;
+				_renderer = base.GetComponent<Renderer>();
 			return _renderer;
 		}
 	}
@@ -45,7 +45,7 @@ public class VoBehavior : MonoBehaviour
 		get
 		{
 			if (!_spriteRenderer)
-				_spriteRenderer = base.renderer as SpriteRenderer;
+				_spriteRenderer = base.GetComponent<Renderer>() as SpriteRenderer;
 			return _spriteRenderer;
 		}
 	}

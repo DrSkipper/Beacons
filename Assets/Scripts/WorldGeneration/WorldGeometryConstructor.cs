@@ -34,7 +34,7 @@ public class WorldGeometryConstructor : VoBehavior
 		int height = map.GetLength(1);
 		int halfWidth = width / 2;
 		int halfHeight = height / 2;
-		Bounds tileBounds = this.planePrefabA.renderer.bounds;
+		Bounds tileBounds = this.planePrefabA.GetComponent<Renderer>().bounds;
 		
 		_tileObjects = new GameObject[width, height];
 		
